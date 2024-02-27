@@ -49,7 +49,7 @@ const App: FC = () => {
          return;
     }
     const newTask = {
-      id: uuid(), taskName: task, deadline: deadline, taskDetails: taskDetails
+      id: itemId, taskName: task, deadline: deadline, taskDetails: taskDetails
     };
     setTodoList([...todoList, newTask]);
     setItemId(uuid());
