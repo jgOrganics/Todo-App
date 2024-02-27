@@ -1,17 +1,25 @@
 import React, { FC, useState } from "react";
 import "./App.css";
 import { ITask } from "./Interfaces";
-import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
+// import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
 import { Delete, Edit, Update } from "@mui/icons-material";
 import { v4 as uuid } from 'uuid';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TableCell,TableBody, TableRow, TextField ,TableContainer, Typography, Box, TableHead, Table} from "@mui/material";
+
 import styled from "@emotion/styled";
 const App: FC = () => {
-  const [task, setTask] = useState<string>("");
+  const [taskName, setTaskName] = useState<string>("");
   const [taskDetails, setTaskDetails] = useState<string>('');
   const [itemId, setItemId] = useState<number>(0);
   const [deadline, setDealine] = useState<number>(0);
   const [todoList, setTodoList] = useState<ITask[]>([]);
   const [error,setError] =useState<String>('');
+  const [open, setOpen] = useState(false);
+
+  const [editTaskName, setEditTaskName] = useState<string>("");
+  const [editTaskDetails, setEditTaskDetails] = useState<string>('');
+  const [editDeadline, setEditDealine] = useState<number>(0);
+
   const Error=styled(Typography)
   `background:red;
    color:#fff;
@@ -19,41 +27,44 @@ const App: FC = () => {
    width:50%;
   `
   const handleChange = (event: any): void => {
-    if (event.target.name === "task") {
-      setTask(event.target.value);
+    if (event.target.name === "taskName") {
+      setTaskName(event.target.value);
     } else {
       setDealine(Number(event.target.value));
     }
   };
 
-  const handleTaskDetails = (event: any): void => {
-      setTaskDetails(event.target.value);
+  const handleChangeEdit = (event: any): void => {
+    if (event.target.name === "editTaskName") {
+      setEditTaskName(event.target.value);
+      
+    } else {
+      setEditDealine(Number(event.target.value));
+    }
   };
 
-  const editedTask = (id: number, task: ITask): void => {
-    if(!task && !taskDetails && !deadline)
-    {
-        setError('All fields are mendatory');
-        return;
-    }
-    if (id === task.id) {
-      setTask(task.taskName);
-      setTaskDetails(task.taskDetails);
-      setDealine(task.deadline);
-    }
+
+  const handleTaskDetails = (event: any): void => {
+        setTaskDetails(event.target.value);
   };
+  const handleEditTaskDetails = (event: any): void => {
+    setEditTaskDetails(event.target.value);
+};
+
+
+
   const addTask = (): void => {
-    if(!task && !taskDetails && !deadline)
+    if(!taskName && !taskDetails && !deadline)
     {
         setError('All fields are mendatory');
          return;
     }
     const newTask = {
-      id: itemId, taskName: task, deadline: deadline, taskDetails: taskDetails
+      id: itemId, taskName: taskName, deadline: deadline, taskDetails: taskDetails
     };
     setTodoList([...todoList, newTask]);
     setItemId(uuid());
-    setTask("");
+    setTaskName("");
     setTaskDetails('');
     setDealine(0);
     console.log();
@@ -61,7 +72,7 @@ const App: FC = () => {
 
 
   const UpdateTask = (id: number): void => {
-    const newTask = { id: id, taskName: task, deadline: deadline, taskDetails: taskDetails };
+    const newTask = { id: id, taskName: editTaskName, deadline: editDeadline, taskDetails: editTaskDetails };
     console.log(newTask);
     setTodoList((todoList) =>
       todoList.map((task) =>
@@ -69,6 +80,12 @@ const App: FC = () => {
         task.id === id ? newTask : task
       ))
     );
+   
+    setItemId(uuid());
+    setEditTaskName("");
+    setEditTaskDetails('');
+    setEditDealine(0);
+    setOpen(false);
   };
 
   const completeTask = (taskNameToDelete: number): void => {
@@ -79,12 +96,35 @@ const App: FC = () => {
     );
   };
 
+  const handleOpen = (id: number, task: ITask) => {
+    setOpen(true);
+    if(!task && !taskDetails && !deadline)
+    {
+        setError('All fields are mendatory');
+        return;
+    }
+    if (id === task.id) {
+      setEditTaskName(task.taskName);
+      setEditTaskDetails(task.taskDetails);
+      setEditDealine(task.deadline);
+    }
+    // setEditTaskName("");
+    // setEditTaskDetails('');
+    // setEditDealine(0);
+    // console.log();
+   
+};
+const handleClose = () => {
+    setOpen(false);
+};
+
+
   return (
     <Box sx={{ margin: 10, my: 5 }} >
       <TextField
         placeholder="Task Name"
-        name="task"
-        value={task}
+        name="taskName"
+        value={taskName}
         onChange={handleChange}
       />
       <TextField
@@ -156,19 +196,58 @@ const App: FC = () => {
                     />
                     <Edit sx={{ color: "black", }}
                       onClick={() => {
-                        editedTask(
+                        handleOpen(
                           task.id,
                           task);
                       }}
                     />
-                    <Update sx={{ color: "black", }}
-                      onClick={() => {
-                        UpdateTask(
-                          task.id
-
-                        )
-                      }}
+                      <Dialog open={open} 
+                    // onClose={handleClose}
+            >
+                <DialogTitle>Edit Data</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        placeholder="Task Name"
+                        name="editTaskName"
+                        value={editTaskName}
+                        onChange={handleChangeEdit}
                     />
+                    <TextField
+                        type="text"
+                        placeholder="Task Details"
+                        name="editTaskDetails"
+                        value={editTaskDetails}
+                        onChange={handleEditTaskDetails}
+                    />
+                    <TextField
+                        // type="number"
+                        placeholder="Deadline (in Days)..."
+                        name="editDeadline"
+                        value={editDeadline}
+                        onChange={handleChangeEdit}
+                    />
+
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => {
+                        UpdateTask(task.id);
+                    }}
+
+                        color="primary">
+                        update
+                    </Button>
+                </DialogActions>
+                <DialogActions>
+                    <Button onClick={() => {
+                        handleClose();
+                    }}
+
+                        color="primary">
+                        CLose
+                    </Button>
+                </DialogActions>
+            </Dialog>
+          
                   </TableRow>
                 )
               })}
