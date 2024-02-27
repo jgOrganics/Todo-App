@@ -119,7 +119,7 @@ const App: FC = () => {
           <Table aria-label="contact table">
             <TableBody>
               <TableCell sx={{ bgcolor: 'black', color: 'white', flex: 1 }} >
-                SL NO
+                Sl No
               </TableCell>
               <TableCell sx={{ bgcolor: 'black', color: 'white', flex: 1 }} >
                 Days
