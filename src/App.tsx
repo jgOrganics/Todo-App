@@ -2,29 +2,28 @@ import React, { FC, useState } from "react";
 import "./App.css";
 import { ITask } from "./Interfaces";
 // import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
-import { Delete, Edit,  } from "@mui/icons-material";
+import { Delete, Edit } from "@mui/icons-material";
 import { v4 as uuid } from 'uuid';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TableCell,TableBody, TableRow, TextField ,TableContainer, Typography, Box, TableHead, Table} from "@mui/material";
-
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TableCell, TableBody, TableRow, TextField, TableContainer, Typography, Box, TableHead, Table } from "@mui/material";
 import styled from "@emotion/styled";
-const App: FC = () => {
+
+const App = () => {
   const [taskName, setTaskName] = useState<string>("");
   const [taskDetails, setTaskDetails] = useState<string>('');
   const [itemId, setItemId] = useState<number>(0);
   const [deadline, setDealine] = useState<number>(0);
   const [todoList, setTodoList] = useState<ITask[]>([]);
-  const [error,setError] =useState<String>('');
+  const [error, setError] = useState<String>('');
   const [open, setOpen] = useState(false);
-
   const [editTaskName, setEditTaskName] = useState<string>("");
   const [editTaskDetails, setEditTaskDetails] = useState<string>('');
   const [editDeadline, setEditDealine] = useState<number>(0);
 
-  const Error=styled(Typography)
-  `background:red;
-   color:#fff;
-   padding:10px;
-   width:50%;
+  const Error = styled(Typography)
+    `background:red;
+     color:#fff;
+     padding:10px;
+     width:50%;
   `
   const handleChange = (event: any): void => {
     if (event.target.name === "taskName") {
@@ -37,27 +36,22 @@ const App: FC = () => {
   const handleChangeEdit = (event: any): void => {
     if (event.target.name === "editTaskName") {
       setEditTaskName(event.target.value);
-      
     } else {
       setEditDealine(Number(event.target.value));
     }
   };
 
-
   const handleTaskDetails = (event: any): void => {
-        setTaskDetails(event.target.value);
+    setTaskDetails(event.target.value);
   };
   const handleEditTaskDetails = (event: any): void => {
     setEditTaskDetails(event.target.value);
-};
-
-
+  };
 
   const addTask = (): void => {
-    if(!taskName && !taskDetails && !deadline)
-    {
-        setError('All fields are mendatory');
-         return;
+    if (!taskName && !taskDetails && !deadline) {
+      setError('All fields are mendatory');
+      return;
     }
     const newTask = {
       id: itemId, taskName: taskName, deadline: deadline, taskDetails: taskDetails
@@ -67,20 +61,19 @@ const App: FC = () => {
     setTaskName("");
     setTaskDetails('');
     setDealine(0);
-    console.log();
+    setError('');
   };
-
 
   const UpdateTask = (id: number): void => {
     const newTask = { id: id, taskName: editTaskName, deadline: editDeadline, taskDetails: editTaskDetails };
-    console.log(newTask);
+ 
     setTodoList((todoList) =>
       todoList.map((task) =>
       (
         task.id === id ? newTask : task
       ))
     );
-   
+
     setItemId(uuid());
     setEditTaskName("");
     setEditTaskDetails('');
@@ -88,51 +81,55 @@ const App: FC = () => {
     setOpen(false);
   };
 
-  const completeTask = (taskNameToDelete: number): void => {
+  const completeTask = (taskIDToDelete: number): void => {
     setTodoList(
       todoList.filter((task) => {
-        return task.id !== taskNameToDelete;
+        return task.id !== taskIDToDelete;
       })
     );
   };
 
   const handleOpen = (id: number, task: ITask) => {
     setOpen(true);
-    if(!task && !taskDetails && !deadline)
-    {
-        setError('All fields are mendatory');
-        return;
+    if (!task && !taskDetails && !deadline) {
+      setError('All fields are mendatory');
+      return;
     }
     if (id === task.id) {
       setEditTaskName(task.taskName);
       setEditTaskDetails(task.taskDetails);
       setEditDealine(task.deadline);
     }
-    // setEditTaskName("");
-    // setEditTaskDetails('');
-    // setEditDealine(0);
-    // console.log();
-   
-};
-const handleClose = () => {
+  };
+  const handleClose = () => {
     setOpen(false);
-};
+  };
 
-
+  const handleKeyDown = (event: any) => {
+    if (event.key === 'Enter') {
+      addTask();
+    }
+  };
+  
   return (
-    <Box sx={{ margin: 10, my: 5 }} >
+
+    <Box sx={{ margin: 10, my: 5,padding:25 }} >
+      
       <TextField
         placeholder="Task Name"
         name="taskName"
         value={taskName}
         onChange={handleChange}
+        style={{margin:"2px "}}
       />
+   
       <TextField
         type="text"
         placeholder="Task Details"
         name="taskDetails"
         value={taskDetails}
         onChange={handleTaskDetails}
+        style={{margin:"0px 0px 0px 50px "}}
       />
       <TextField
         type="number"
@@ -140,19 +137,36 @@ const handleClose = () => {
         name="deadline"
         value={deadline}
         onChange={handleChange}
+        onKeyDown={handleKeyDown}
+        style={{margin:"0px 0px 0px 50px ",
+          
+      }}
       />
       <br />
       <br />
-      <Button onClick={addTask}
+      <Box   style={{ display: ""}}>
+      <Button 
+
+      onClick={addTask}
         variant="outlined"
         size="large">
         Add Task
       </Button>
-      {error &&  <Error>{error}</Error>}
+      </Box>
+  
+      <br />
+      <br />
+      {error && <Error>{error}</Error>}
       <Box sx={{}}>
         <TableContainer>
-          <TableHead >
-            <TableCell align="center" sx={{ bgcolor: 'skyblue', color: 'white', width: 250, margin: 'auto', }} >
+          <TableHead>
+            <TableCell align="center" sx={{
+              bgcolor: 'skyblue',
+              color: 'white',
+              width: 300,
+              alignItems: "center",
+              alignSelf: "center",
+            }} >
               Task Details
             </TableCell>
           </TableHead>
@@ -201,53 +215,53 @@ const handleClose = () => {
                           task);
                       }}
                     />
-                      <Dialog open={open} 
+                    <Dialog open={open}
                     // onClose={handleClose}
-            >
-                <DialogTitle>Edit Data</DialogTitle>
-                <DialogContent>
-                    <TextField
-                        placeholder="Task Name"
-                        name="editTaskName"
-                        value={editTaskName}
-                        onChange={handleChangeEdit}
-                    />
-                    <TextField
-                        type="text"
-                        placeholder="Task Details"
-                        name="editTaskDetails"
-                        value={editTaskDetails}
-                        onChange={handleEditTaskDetails}
-                    />
-                    <TextField
-                        // type="number"
-                        placeholder="Deadline (in Days)..."
-                        name="editDeadline"
-                        value={editDeadline}
-                        onChange={handleChangeEdit}
-                    />
+                    >
+                      <DialogTitle>Edit Data</DialogTitle>
+                      <DialogContent>
+                        <TextField
+                          placeholder="Task Name"
+                          name="editTaskName"
+                          value={editTaskName}
+                          onChange={handleChangeEdit}
+                        />
+                        <TextField
+                          type="text"
+                          placeholder="Task Details"
+                          name="editTaskDetails"
+                          value={editTaskDetails}
+                          onChange={handleEditTaskDetails}
+                        />
+                        <TextField
+                          // type="number"
+                          placeholder="Deadline (in Days)..."
+                          name="editDeadline"
+                          value={editDeadline}
+                          onChange={handleChangeEdit}
+                        />
 
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => {
-                        UpdateTask(task.id);
-                    }}
+                      </DialogContent>
+                      <DialogActions>
+                        <Button onClick={() => {
+                          UpdateTask(task.id);
+                        }}
 
-                        color="primary">
-                        update
-                    </Button>
-                </DialogActions>
-                <DialogActions>
-                    <Button onClick={() => {
-                        handleClose();
-                    }}
+                          color="primary">
+                          update
+                        </Button>
+                      </DialogActions>
+                      <DialogActions>
+                        <Button onClick={() => {
+                          handleClose();
+                        }}
 
-                        color="primary">
-                        CLose
-                    </Button>
-                </DialogActions>
-            </Dialog>
-          
+                          color="primary">
+                          CLose
+                        </Button>
+                      </DialogActions>
+                    </Dialog>
+
                   </TableRow>
                 )
               })}
